@@ -45,6 +45,30 @@ nominaSemestre(profesor(nombre(X), Y, Z), Semestre, Total) :- profesor(nombre(X)
 															tipoSemestre(Semestre,S), 
 															horasContrato(Y, H), 
 															Total is round((B*H*S)*(1+Bono)).
-
-%ejemplo de consulta:    nominaSemestre( profesor(nombre('Melissa'), Y, Z), 'Normal', Total).
+																											
+%ejemplo de consulta:    nominaSemestre( X, 'Normal', Total).
 %ejemplo de consulta:    nominaSemestre( profesor(nombre('Melissa'), _, _), 'Normal', Total).
+
+totalSemestre(Tipo, Valor) :- listaNominas(Lista, Tipo),  sum_list(Lista, Valor).
+											  
+											  
+listaNominas(Lista, Tipo) :- findall( Valor, nominaSemestre(profesor(nombre(_),_,_), Tipo, Valor), Lista ).
+												
+											  
+sum_list([], 0).
+sum_list([H|T], Sum) :-
+   sum_list(T, Rest),
+   Sum is H + Rest.
+
+count(Thing, N) :-
+    count(Thing, [], 0, N).
+
+count(Thing, Seen, Acc, N) :-
+    profesor(nombre(X),Y,Z),
+    (   member(X, Seen)  ->  fail    ;   !,
+        nominaSemestre(profesor(nombre(X),Y,Z),'Normal',Valor),
+		Acc1 is Acc + Valor,
+        count(Thing, [X|Seen], Acc1, N)
+    ).
+	
+count(_, _, N, N).
